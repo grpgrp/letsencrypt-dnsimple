@@ -42,7 +42,7 @@ authorize_names.each do |authorize_name, authorize_domain_name|
   # full name to authorize
   letsencrypt_authorize_name = "#{LETSENCRYPT_NAME}.#{authorize_name}"
   # the name we care about at dnsimple
-  dnsimple_authorize_name = letsencrypt_authorize_name.sub(/(\A|\.)#{Regexp.escape(authorize_domain.name)}\z/, "")
+  dnsimple_authorize_name = letsencrypt_authorize_name.sub(/(\A|\.)#{Regexp.escape(authorize_domain_name)}\z/, "")
 
   puts "preparing to authorize #{authorize_name} via #{letsencrypt_authorize_name} with dnsimple record #{dnsimple_authorize_name}/#{authorize_domain.name}"
 
