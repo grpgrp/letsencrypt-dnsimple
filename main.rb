@@ -4,7 +4,12 @@ require "shellwords"
 require "dnsimple"
 require "acme/client"
 
-DEFAULT_LETSENCRYPT_ENDPOINT = "https://acme-v01.api.letsencrypt.org/"
+#DEFAULT_LETSENCRYPT_ENDPOINT = "https://acme-v01.api.letsencrypt.org/"
+#default should be sandbox, then uncomment above to live
+DEFAULT_LETSENCRYPT_ENDPOINT = "https://acme-staging.api.letsencrypt.org/"
+
+account_id = ENV.fetch("ACCOUNT_ID")
+
 LETSENCRYPT_NAME = "_acme-challenge" # paranoid, don't use value from acme client
 LETSENCRYPT_NAME_TYPE = "TXT" # paranoid, don't use value from acme client
 DNSIMPLE_TTL = 60
@@ -12,8 +17,9 @@ DNSIMPLE_TTL = 60
 raw_names = ENV.fetch("NAMES").split(",")
 authorize_names = raw_names.inject({}) {|h, rn| n = rn.sub("/", "."); d = rn.split("/", 2).last; h.update(n => d) }
 
-dnsimple = Dnsimple::Client.new(username: ENV.fetch("DNSIMPLE_API_USER"), api_token: ENV.fetch("DNSIMPLE_API_TOKEN"))
-domains = authorize_names.values.uniq.inject({}) {|h, d| h.update(d => dnsimple.domains.domain(d)) }
+dnsimple = Dnsimple::Client.new(access_token: ENV.fetch("DNSIMPLE_ACCESS_TOKEN"))
+
+domains = authorize_names.values.uniq.inject({}) {|h, d| h.update(d => dnsimple.domains.domain(account_id, d)) }
 
 private_key = OpenSSL::PKey::RSA.new(2048)
 acme = Acme::Client.new(private_key: private_key, endpoint: ENV.fetch("LETSENCRYPT_ENDPOINT", DEFAULT_LETSENCRYPT_ENDPOINT))
